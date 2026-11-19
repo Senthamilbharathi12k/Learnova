@@ -1,0 +1,154 @@
+
+.verify-page {
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  background: #ECFDF5;
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 470px;
+  padding: 38px;
+  background: #FFFFFF;
+  border: 1px solid #dcebe3;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(6, 78, 59, 0.10);
+}
+
+.verify-icon {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #0F766E;
+}
+
+.verify-card h2 {
+  text-align: center;
+  color: #064E3B;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.verify-description {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.verify-email {
+  text-align: center;
+  color: #0F766E;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  margin-bottom: 25px;
+}
+
+.verify-card form label {
+  display: block;
+  margin: 16px 0 8px;
+  color: #064E3B;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.verify-input,
+.verify-password-wrapper {
+  width: 100%;
+  height: 49px;
+  border: 1px solid #cbded4;
+  border-radius: 9px;
+  background: #FFFFFF;
+}
+
+.verify-input {
+  padding: 0 14px;
+  outline: none;
+}
+
+.verify-password-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.verify-password-wrapper input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #064E3B;
+  font-size: 14px;
+}
+
+.verify-password-wrapper button {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: #0F766E;
+  cursor: pointer;
+}
+
+.verify-input:focus,
+.verify-password-wrapper:focus-within {
+  border-color: #0F766E;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.10);
+}
+
+.verify-submit {
+  width: 100%;
+  margin-top: 24px;
+  padding: 13px;
+  border: none;
+  border-radius: 9px;
+  background: #C5A45D;
+  color: #064E3B;
+  font-weight: 700;
+  transition: 0.3s ease;
+}
+
+.verify-submit:hover {
+  background: #064E3B;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.verify-error {
+  margin-top: 12px;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.verify-back {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  margin-top: 23px;
+  color: #0F766E;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.verify-back:hover {
+  color: #064E3B;
+}
+
+@media (max-width: 480px) {
+  .verify-card {
+    padding: 27px 21px;
+  }
+}

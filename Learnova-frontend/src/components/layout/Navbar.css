@@ -1,0 +1,139 @@
+﻿.learnova-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 3px 18px rgba(6, 78, 59, 0.05);
+}
+
+.learnova-navbar {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.learnova-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--forest-green);
+  font-family: var(--font-heading);
+  font-size: 27px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.learnova-brand > span:last-child > span {
+  color: var(--soft-gold);
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--forest-green);
+  color: var(--soft-gold);
+}
+
+.navbar-content,
+.navbar-links,
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-content {
+  flex: 1;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.navbar-links {
+  justify-content: center;
+  gap: 30px;
+  margin-inline: auto;
+}
+
+.navbar-links a,
+.navbar-login {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.25s ease;
+}
+
+.navbar-links a:hover,
+.navbar-login:hover {
+  color: var(--teal);
+}
+
+.navbar-actions {
+  gap: 22px;
+  white-space: nowrap;
+}
+
+.navbar-register {
+  padding: 11px 18px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  border: 0;
+  background: transparent;
+  color: var(--forest-green);
+  padding: 8px;
+}
+
+@media (max-width: 850px) {
+  .learnova-navbar {
+    min-height: 70px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar-content {
+    display: none;
+    flex-basis: 100%;
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 20px;
+    padding: 8px 0 22px;
+  }
+
+  .navbar-content-open {
+    display: flex;
+  }
+
+  .navbar-links,
+  .navbar-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .navbar-links a,
+  .navbar-login {
+    padding: 13px 8px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .navbar-actions {
+    gap: 12px;
+  }
+
+  .navbar-register {
+    justify-content: center;
+  }
+}

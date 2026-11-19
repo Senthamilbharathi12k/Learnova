@@ -1,0 +1,43 @@
+﻿# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+env/
+
+# Django
+*.log
+staticfiles/
+media/
+db.sqlite3
+
+# Database backups
+*.sql
+*.sqlite3
+*.dump
+*.bak
+
+# React
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary project notes
+completed backend.text

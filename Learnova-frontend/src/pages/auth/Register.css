@@ -1,0 +1,15 @@
+﻿.register-page { padding-top: 45px; padding-bottom: 45px; }
+.register-container { min-height: 680px; }
+.register-form-panel { padding-top: 38px; padding-bottom: 38px; }
+.register-form { gap: 9px; }
+.register-form .auth-input-wrap { min-height: 46px; }
+.register-error {
+  margin: 5px 0 0;
+  color: #B42318;
+  font-size: 13px;
+  font-weight: 600;
+}
+@media(max-width:750px) {
+  .register-container { min-height: auto; }
+  .register-form-panel { padding-top: 35px; padding-bottom: 35px; }
+}

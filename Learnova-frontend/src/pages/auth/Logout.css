@@ -1,0 +1,130 @@
+﻿.logout-page {
+  min-height: 75vh;
+  display: grid;
+  place-items: center;
+  padding: 45px 18px;
+  background: linear-gradient(135deg, #ECFDF5, #FFFFFF, #F7F3E9);
+}
+
+.logout-card {
+  width: min(100%, 490px);
+  padding: 42px 38px;
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 20px 60px rgba(6,78,59,.1);
+  text-align: center;
+}
+
+.logout-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 32px;
+  color: var(--forest-green);
+  font-family: var(--font-heading);
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.logout-brand > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--forest-green);
+  color: var(--soft-gold);
+}
+
+.logout-brand > span:last-child { color: var(--soft-gold); }
+
+.logout-icon {
+  width: 75px;
+  height: 75px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: var(--teal);
+}
+
+.logout-card h1 {
+  margin-bottom: 12px;
+  color: var(--forest-green);
+  font-family: var(--font-heading);
+  font-size: 34px;
+}
+
+.logout-card > p {
+  margin: 0 auto 22px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.logout-security {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 25px;
+  color: var(--teal);
+  font-size: 12px;
+}
+
+.logout-security svg { flex-shrink: 0; }
+
+.logout-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.logout-confirm-btn,
+.logout-cancel-btn {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: .25s ease;
+}
+
+.logout-confirm-btn {
+  border: 1px solid var(--forest-green);
+  background: var(--forest-green);
+  color: white;
+}
+
+.logout-confirm-btn:hover {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.logout-cancel-btn {
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--forest-green);
+}
+
+.logout-cancel-btn:hover {
+  border-color: var(--soft-gold);
+  background: #ECFDF5;
+}
+
+.logout-home-link {
+  display: inline-block;
+  margin-top: 25px;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media(max-width:480px) {
+  .logout-card { padding: 35px 22px; }
+  .logout-card h1 { font-size: 29px; }
+}
