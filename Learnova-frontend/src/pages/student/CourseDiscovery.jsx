@@ -1,6 +1,8 @@
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+
 import {
   Search,
   BookOpen,
@@ -14,13 +16,125 @@ import {
   LoaderCircle,
   RefreshCw,
   ExternalLink,
+  AlertCircle,
+  Bookmark,
+  ArrowLeftRight,
 } from 'lucide-react'
 
 import { getCourseDiscovery } from '../../services/courseService'
+
+import {
+  getSavedCourses,
+  saveCourse,
+  removeSavedCourse,
+  subscribeSavedCourses,
+} from '../../services/savedCourseService'
+
+import {
+  getComparisonCourses,
+  addCourseToComparison,
+  subscribeComparisonCourses,
+  MAX_COMPARE_COURSES,
+} from '../../services/courseComparisonService'
+
 import './CourseDiscovery.css'
+
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+
+const getCourseList = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.courses)) return data.courses
+  if (Array.isArray(data?.results)) return data.results
+  if (Array.isArray(data?.data)) return data.data
+
+  return []
+}
+
+const getCourseName = (course) =>
+  course?.name || course?.title || 'Untitled Course'
+
+const formatLevel = (level) => {
+  if (!level) return 'Not specified'
+
+  const value = String(level).toLowerCase()
+
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
+const formatDuration = (weeks) => {
+  const duration = Number(weeks)
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return 'Duration not specified'
+  }
+
+  return duration === 1 ? '1 Week' : `${duration} Weeks`
+}
+
+const formatPrice = (resource) => {
+  const price = resource?.price
+
+  if (price === null || price === undefined || price === '') {
+    return 'Price varies'
+  }
+
+  const currency = resource.currency || 'INR'
+
+  if (currency.toUpperCase() === 'INR') {
+    return `₹${price}`
+  }
+
+  return `${currency} ${price}`
+}
+
+const getCourseResources = (course) => {
+  if (Array.isArray(course?.resources)) {
+    return course.resources
+  }
+
+  if (Array.isArray(course?.filtered_resources)) {
+    return course.filtered_resources
+  }
+
+  return []
+}
+
+const getErrorMessage = (error) => {
+  const data = error?.response?.data
+
+  if (typeof data?.message === 'string') {
+    return data.message
+  }
+
+  if (typeof data?.detail === 'string') {
+    return data.detail
+  }
+
+  if (typeof data === 'string') {
+    return data
+  }
+
+  return 'Unable to load courses. Please try again.'
+}
+
+const getSavedCourseList = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.results)) return data.results
+  if (Array.isArray(data?.saved_courses)) return data.saved_courses
+
+  return []
+}
+
+// ==========================================
+// COURSE DISCOVERY COMPONENT
+// ==========================================
 
 function CourseDiscovery() {
   const [courses, setCourses] = useState([])
+
+  // FILTER STATES
 
   const [searchTerm, setSearchTerm] = useState('')
   const [courseType, setCourseType] = useState('All')
@@ -30,97 +144,272 @@ function CourseDiscovery() {
 
   const [categoryOptions, setCategoryOptions] = useState(['All'])
 
+  // API STATES
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Load courses from backend
-  const loadCourses = async (filters = {}) => {
+  // SAVED COURSE STATES
+
+  const [savedIds, setSavedIds] = useState(new Set())
+  const [savedLoading, setSavedLoading] = useState(false)
+
+  // COMPARISON STATES
+
+  const [comparisonIds, setComparisonIds] = useState(() => {
+    return new Set(
+      getComparisonCourses().map((course) => String(course.id))
+    )
+  })
+
+  const [actionMessage, setActionMessage] = useState({
+    type: '',
+    text: '',
+  })
+
+  // ========================================
+  // LOAD COURSES
+  // ========================================
+
+  const loadCourses = useCallback(async (filters = {}) => {
     setLoading(true)
     setError('')
 
     try {
       const data = await getCourseDiscovery(filters)
-
-      const courseList = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.courses)
-          ? data.courses
-          : Array.isArray(data?.results)
-            ? data.results
-            : []
+      const courseList = getCourseList(data)
 
       setCourses(courseList)
 
-      const hasActiveFilters =
-        Boolean(filters.search?.trim()) ||
-        (filters.category && filters.category !== 'All') ||
-        (filters.learningMode && filters.learningMode !== 'All') ||
-        (filters.pricingType && filters.pricingType !== 'All')
+      const categories = [
+        ...new Set(
+          courseList
+            .map((course) => course.category)
+            .filter(
+              (item) =>
+                typeof item === 'string' &&
+                item.trim() !== ''
+            )
+        ),
+      ].sort((a, b) => a.localeCompare(b))
 
-      if (!hasActiveFilters) {
-        const categories = [
-          ...new Set(
-            courseList
-              .map((course) => course.category)
-              .filter(Boolean)
-          ),
-        ].sort((a, b) => a.localeCompare(b))
-
-        setCategoryOptions(['All', ...categories])
-      }
+      setCategoryOptions(['All', ...categories])
     } catch (err) {
       console.error('Course discovery error:', err)
 
-      setError(
-        err.response?.data?.message ||
-        'Unable to load courses. Please try again.'
-      )
-
+      setError(getErrorMessage(err))
       setCourses([])
     } finally {
       setLoading(false)
     }
-  }
-
-  // Initial API call
-  useEffect(() => {
-    loadCourses()
   }, [])
 
-  // Get resources from the backend response.
-  // Supports either "resources" or "filtered_resources".
-  const getCourseResources = (course) => {
-    if (Array.isArray(course.resources)) {
-      return course.resources
-    }
+  // INITIAL API CALL
 
-    if (Array.isArray(course.filtered_resources)) {
-      return course.filtered_resources
-    }
+ // INITIAL API CALL
 
-    return []
+useEffect(() => {
+  let isMounted = true
+
+  const fetchInitialCourses = async () => {
+    if (!isMounted) return
+    await loadCourses()
   }
 
-  // Sort courses
-  const filteredCourses = useMemo(() => {
-    const result = [...courses]
+  fetchInitialCourses()
 
-    if (sortBy === 'name') {
-      result.sort((a, b) =>
-        (a.name || '').localeCompare(b.name || '')
+  return () => {
+    isMounted = false
+  }
+}, [loadCourses])
+
+  // ========================================
+  // LOAD SAVED COURSES
+  // ========================================
+
+  const updateSavedIds = useCallback(async () => {
+    try {
+      const response = await getSavedCourses()
+      const saved = getSavedCourseList(response)
+
+      setSavedIds(
+        new Set(
+          saved.map((course) => String(course.id))
+        )
       )
-    } else if (sortBy === 'duration') {
-      result.sort(
-        (a, b) =>
-          (Number(a.duration_weeks) || 0) -
-          (Number(b.duration_weeks) || 0)
+    } catch (err) {
+      console.error('Unable to load saved courses:', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    const syncSavedCourses = async () => {
+      try {
+        const response = await getSavedCourses()
+        const saved = getSavedCourseList(response)
+
+        if (isMounted) {
+          setSavedIds(
+            new Set(
+              saved.map((course) => String(course.id))
+            )
+          )
+        }
+      } catch (err) {
+        console.error('Saved courses loading error:', err)
+      }
+    }
+
+    syncSavedCourses()
+
+    const unsubscribe = subscribeSavedCourses(() => {
+      if (isMounted) {
+        updateSavedIds()
+      }
+    })
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [updateSavedIds])
+
+  // ========================================
+  // SYNC COMPARISON COURSES
+  // ========================================
+
+  useEffect(() => {
+    const updateComparisonIds = () => {
+      const comparisonCourses = getComparisonCourses()
+
+      setComparisonIds(
+        new Set(
+          comparisonCourses.map((course) => String(course.id))
+        )
       )
     }
 
-    return result
-  }, [courses, sortBy])
+    updateComparisonIds()
 
-  // Apply backend filters
+    return subscribeComparisonCourses(updateComparisonIds)
+  }, [])
+
+  // ========================================
+  // SAVE / UNSAVE COURSE
+  // ========================================
+
+  const handleSaveCourse = async (course) => {
+    if (course.id === null || course.id === undefined) {
+      setActionMessage({
+        type: 'error',
+        text: 'This course cannot be saved because its ID is missing.',
+      })
+      return
+    }
+
+    if (savedLoading) return
+
+    setSavedLoading(true)
+
+    try {
+      const alreadySaved = savedIds.has(String(course.id))
+      const courseName = getCourseName(course)
+
+      if (alreadySaved) {
+        await removeSavedCourse(course.id)
+
+        setSavedIds((previous) => {
+          const updated = new Set(previous)
+          updated.delete(String(course.id))
+          return updated
+        })
+
+        setActionMessage({
+          type: 'success',
+          text: `${courseName} removed from saved courses.`,
+        })
+      } else {
+        await saveCourse(course)
+
+        setSavedIds((previous) => {
+          const updated = new Set(previous)
+          updated.add(String(course.id))
+          return updated
+        })
+
+        setActionMessage({
+          type: 'success',
+          text: `${courseName} added to saved courses.`,
+        })
+      }
+    } catch (err) {
+      console.error('Save course error:', err)
+
+      setActionMessage({
+        type: 'error',
+        text: getErrorMessage(err),
+      })
+
+      await updateSavedIds()
+    } finally {
+      setSavedLoading(false)
+    }
+  }
+
+  // ========================================
+  // ADD COURSE TO COMPARISON
+  // MAXIMUM TWO COURSES
+  // ========================================
+
+  const handleCompareCourse = (course) => {
+    if (course.id === null || course.id === undefined) {
+      setActionMessage({
+        type: 'error',
+        text: 'This course cannot be compared because its ID is missing.',
+      })
+      return
+    }
+
+    try {
+      const result = addCourseToComparison(course)
+      const courseName = getCourseName(course)
+
+      if (result.status === 'limit-reached') {
+        setActionMessage({
+          type: 'error',
+          text: `You can compare only ${MAX_COMPARE_COURSES} courses at a time. Remove a course from comparison to add another.`,
+        })
+        return
+      }
+
+      if (result.status === 'already-added') {
+        setActionMessage({
+          type: 'info',
+          text: 'This course is already in your comparison list.',
+        })
+        return
+      }
+
+      setActionMessage({
+        type: 'success',
+        text: `${courseName} added to comparison successfully.`,
+      })
+    } catch (err) {
+      console.error('Course comparison error:', err)
+
+      setActionMessage({
+        type: 'error',
+        text: 'Unable to add this course to comparison.',
+      })
+    }
+  }
+
+  // ========================================
+  // APPLY FILTERS
+  // ========================================
+
   const applyFilters = () => {
     loadCourses({
       search: searchTerm,
@@ -130,7 +419,10 @@ function CourseDiscovery() {
     })
   }
 
-  // Reset filters
+  // ========================================
+  // CLEAR FILTERS
+  // ========================================
+
   const clearFilters = () => {
     setSearchTerm('')
     setCourseType('All')
@@ -141,6 +433,10 @@ function CourseDiscovery() {
     loadCourses()
   }
 
+  // ========================================
+  // ACTIVE FILTER COUNT
+  // ========================================
+
   const activeFilterCount = [
     searchTerm.trim() !== '',
     courseType !== 'All',
@@ -148,90 +444,87 @@ function CourseDiscovery() {
     category !== 'All',
   ].filter(Boolean).length
 
-  const formatLevel = (level) => {
-    if (!level) return 'Not specified'
+  // ========================================
+  // SORT COURSES
+  // ========================================
 
-    return (
-      level.charAt(0) +
-      level.slice(1).toLowerCase()
-    )
-  }
+  const filteredCourses = useMemo(() => {
+    const result = [...courses]
 
-  const formatDuration = (weeks) => {
-    const duration = Number(weeks)
-
-    if (!duration || duration <= 0) {
-      return 'Duration not specified'
+    if (sortBy === 'name') {
+      result.sort((a, b) =>
+        String(getCourseName(a)).localeCompare(
+          String(getCourseName(b))
+        )
+      )
     }
 
-    return duration === 1 ? '1 Week' : `${duration} Weeks`
-  }
+    if (sortBy === 'duration') {
+      result.sort((a, b) => {
+        const durationA = Number(a.duration_weeks) || 0
+        const durationB = Number(b.duration_weeks) || 0
 
-  const formatPrice = (resource) => {
-    if (
-      resource.price === null ||
-      resource.price === undefined ||
-      resource.price === ''
-    ) {
-      return 'Price varies'
+        return durationA - durationB
+      })
     }
 
-    const currency = resource.currency || 'INR'
+    return result
+  }, [courses, sortBy])
 
-    if (currency === 'INR') {
-      return `₹${resource.price}`
-    }
-
-    return `${currency} ${resource.price}`
-  }
+  // ========================================
+  // RESOURCE RENDERING
+  // ========================================
 
   const renderResource = (resource, index) => {
-    const pricingType = (
-      resource.pricing_type || ''
+    const pricingType = String(
+      resource?.pricing_type || ''
     ).toUpperCase()
 
     const isFree = pricingType === 'FREE'
+    const isPaid = pricingType === 'PAID'
+
+    const hasPrice =
+      resource?.price !== null &&
+      resource?.price !== undefined &&
+      resource?.price !== ''
+
+    const resourceTitle =
+      resource?.title || 'Learning Resource'
+
+    const priceLabel = isFree
+      ? 'Free Access'
+      : hasPrice
+        ? formatPrice(resource)
+        : 'Price varies'
 
     return (
       <div
         className="discovery-resource"
-        key={resource.id || `${resource.title}-${index}`}
+        key={resource.id || `${resourceTitle}-${index}`}
       >
         <div className="discovery-resource-header">
           <span
             className={`discovery-resource-badge ${
-              isFree ? 'free-price' : 'paid-price'
+              isFree
+                ? 'free-price'
+                : isPaid
+                  ? 'paid-price'
+                  : 'unknown-price'
             }`}
           >
-            {isFree ? 'FREE' : 'PAID'}
+            {isFree
+              ? 'FREE'
+              : isPaid
+                ? 'PAID'
+                : 'PRICE NOT SPECIFIED'}
           </span>
 
-          {resource.price !== null &&
-            resource.price !== undefined &&
-            resource.price !== '' && (
-              <span className="discovery-resource-price">
-                <IndianRupee size={14} />
-                {formatPrice(resource)}
-              </span>
-            )}
-
-          {isFree && (
-            <span className="discovery-resource-price">
-              Free Access
-            </span>
-          )}
-
-          {!isFree &&
-            (resource.price === null ||
-              resource.price === undefined ||
-              resource.price === '') && (
-              <span className="discovery-resource-price">
-                {formatPrice(resource)}
-              </span>
-            )}
+          <span className="discovery-resource-price">
+            {priceLabel}
+          </span>
         </div>
 
-        <h4>{resource.title || 'Learning Resource'}</h4>
+        <h4>{resourceTitle}</h4>
 
         {resource.provider && (
           <p className="discovery-resource-provider">
@@ -264,10 +557,15 @@ function CourseDiscovery() {
     )
   }
 
+  // ========================================
+  // MAIN UI
+  // ========================================
+
   return (
     <main className="course-discovery-page">
 
-      {/* Hero Section */}
+      {/* HERO SECTION */}
+
       <section className="course-discovery-hero">
         <motion.div
           className="course-discovery-hero-content"
@@ -282,18 +580,19 @@ function CourseDiscovery() {
 
           <h1>
             Discover Courses.
-            <span> Shape Your Future.</span>
+            <span>Shape Your Future.</span>
           </h1>
 
           <p>
-            Find learning opportunities that match your interests,
-            schedule and budget. Choose online or offline and
-            free or paid learning resources.
+            Find learning opportunities that match your
+            interests, schedule and budget. Choose online
+            or offline and free or paid learning resources.
           </p>
         </motion.div>
       </section>
 
-      {/* Course Discovery Section */}
+      {/* COURSE SECTION */}
+
       <section className="course-discovery-container">
 
         <div className="course-discovery-heading">
@@ -305,17 +604,67 @@ function CourseDiscovery() {
             <h2>Explore All Courses</h2>
 
             <p>
-              Choose the learning format and resources that work for you.
+              Choose the learning format and resources
+              that work for you.
             </p>
           </div>
 
-          <div className="course-result-count">
-            <BookOpen size={19} />
-            {filteredCourses.length} Courses Found
+          <div className="course-discovery-heading-actions">
+
+            <div className="course-result-count">
+              <BookOpen size={19} />
+              {filteredCourses.length} Courses Found
+            </div>
+
+            <Link
+              to="/student/saved-courses"
+              className="course-saved-link"
+            >
+              <Bookmark size={17} />
+              Saved Courses
+              <span>{savedIds.size}</span>
+            </Link>
+
+            <Link
+              to="/student/course-comparison"
+              className="course-compare-link"
+            >
+              <ArrowLeftRight size={17} />
+              Compare Courses
+              <span>
+                {comparisonIds.size}/{MAX_COMPARE_COURSES}
+              </span>
+            </Link>
+
           </div>
         </div>
 
-        {/* Filter Panel */}
+        {/* ACTION MESSAGE */}
+
+        {actionMessage.text && (
+          <div
+            className={`course-comparison-message ${actionMessage.type}`}
+            role="status"
+          >
+            <span>{actionMessage.text}</span>
+
+            <button
+              type="button"
+              onClick={() =>
+                setActionMessage({
+                  type: '',
+                  text: '',
+                })
+              }
+              aria-label="Dismiss message"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* FILTER PANEL */}
+
         <div className="course-filter-panel">
 
           <div className="course-search-box">
@@ -349,7 +698,6 @@ function CourseDiscovery() {
 
           <div className="course-filter-grid">
 
-            {/* Learning Mode */}
             <label className="course-filter-control">
               <span>
                 <Monitor size={17} />
@@ -368,7 +716,6 @@ function CourseDiscovery() {
               </select>
             </label>
 
-            {/* Pricing */}
             <label className="course-filter-control">
               <span>
                 <IndianRupee size={17} />
@@ -387,7 +734,6 @@ function CourseDiscovery() {
               </select>
             </label>
 
-            {/* Category */}
             <label className="course-filter-control">
               <span>
                 <SlidersHorizontal size={17} />
@@ -410,9 +756,11 @@ function CourseDiscovery() {
               </select>
             </label>
 
-            {/* Sorting */}
             <label className="course-filter-control">
-              <span>Sort By</span>
+              <span>
+                <BookOpen size={17} />
+                Sort By
+              </span>
 
               <select
                 value={sortBy}
@@ -441,6 +789,7 @@ function CourseDiscovery() {
                 onClick={applyFilters}
                 disabled={loading}
               >
+                <Search size={15} />
                 Apply Filters
               </button>
 
@@ -457,14 +806,15 @@ function CourseDiscovery() {
           </div>
         </div>
 
-        {/* Course Results */}
+        {/* COURSE RESULTS */}
+
         <div className="course-discovery-results">
 
           {loading ? (
 
             <div className="course-discovery-loading">
               <LoaderCircle
-                size={35}
+                size={36}
                 className="course-loading-icon"
               />
 
@@ -478,7 +828,7 @@ function CourseDiscovery() {
           ) : error ? (
 
             <div className="course-discovery-empty">
-              <BookOpen size={40} />
+              <AlertCircle size={40} />
 
               <h3>Unable to Load Courses</h3>
 
@@ -486,7 +836,14 @@ function CourseDiscovery() {
 
               <button
                 type="button"
-                onClick={() => loadCourses()}
+                onClick={() =>
+                  loadCourses({
+                    search: searchTerm,
+                    category,
+                    learningMode: courseType,
+                    pricingType: priceType,
+                  })
+                }
               >
                 <RefreshCw size={15} />
                 Try Again
@@ -498,39 +855,113 @@ function CourseDiscovery() {
             <div className="course-discovery-grid">
 
               {filteredCourses.map((course, index) => {
-                const isOnline =
-                  course.learning_mode === 'ONLINE'
+                const learningMode = String(
+                  course.learning_mode || ''
+                ).toUpperCase()
+
+                const isOnline = learningMode === 'ONLINE'
 
                 const resources = getCourseResources(course)
+
+                const courseName = getCourseName(course)
+
+                const courseIsSaved =
+                  savedIds.has(String(course.id))
+
+                const courseIsInComparison =
+                  comparisonIds.has(String(course.id))
+
+                // STRICT MAXIMUM: TWO COURSES
+
+                const comparisonLimitReached =
+                  comparisonIds.size >= MAX_COMPARE_COURSES &&
+                  !courseIsInComparison
 
                 return (
                   <motion.article
                     className="discovery-course-card"
-                    key={course.id}
+                    key={course.id || `${courseName}-${index}`}
                     initial={{ opacity: 0, y: 22 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{
                       duration: 0.4,
-                      delay: index * 0.04,
+                      delay: Math.min(index * 0.04, 0.2),
                     }}
                   >
 
                     <div className="discovery-card-top">
+
                       <span className="discovery-category">
                         {course.category || 'General'}
                       </span>
 
-                      <span className="discovery-course-match">
-                        Course
-                      </span>
+                      <div className="discovery-card-actions">
+
+                        {/* SAVE COURSE */}
+
+                        <button
+                          type="button"
+                          className={`discovery-save-button ${
+                            courseIsSaved ? 'is-saved' : ''
+                          }`}
+                          onClick={() => handleSaveCourse(course)}
+                          disabled={savedLoading}
+                          aria-pressed={courseIsSaved}
+                          aria-label={
+                            courseIsSaved
+                              ? `Remove ${courseName} from saved courses`
+                              : `Save ${courseName}`
+                          }
+                        >
+                          <Bookmark
+                            size={15}
+                            fill={
+                              courseIsSaved
+                                ? 'currentColor'
+                                : 'none'
+                            }
+                          />
+
+                          {courseIsSaved ? 'Saved' : 'Save Course'}
+                        </button>
+
+                        {/* COMPARE COURSE */}
+
+                        <button
+                          type="button"
+                          className={`discovery-compare-button ${
+                            courseIsInComparison ? 'is-selected' : ''
+                          }`}
+                          onClick={() => handleCompareCourse(course)}
+                          disabled={
+                            comparisonLimitReached ||
+                            courseIsInComparison
+                          }
+                          aria-pressed={courseIsInComparison}
+                          title={
+                            comparisonLimitReached
+                              ? 'Remove a course from comparison to add another'
+                              : 'Add this course to comparison'
+                          }
+                        >
+                          <ArrowLeftRight size={14} />
+
+                          {courseIsInComparison
+                            ? 'Added'
+                            : comparisonLimitReached
+                              ? 'Limit Reached'
+                              : 'Compare'}
+                        </button>
+
+                      </div>
                     </div>
 
                     <div className="discovery-course-icon">
                       <BookOpen size={25} />
                     </div>
 
-                    <h3>{course.name}</h3>
+                    <h3>{courseName}</h3>
 
                     <p className="discovery-course-description">
                       {course.description ||
@@ -546,7 +977,9 @@ function CourseDiscovery() {
                           <MapPin size={16} />
                         )}
 
-                        {isOnline ? 'Online' : 'Offline'}
+                        {learningMode
+                          ? formatLevel(learningMode)
+                          : 'Mode not specified'}
                       </span>
 
                       <span>
@@ -558,31 +991,43 @@ function CourseDiscovery() {
 
                     <div className="discovery-course-level">
                       <GraduationCap size={16} />
-                      {formatLevel(course.difficulty_level)}
+
+                      Level: {formatLevel(course.difficulty_level)}
                     </div>
 
-                    {/* FREE and PAID Resources */}
+                    {/* LEARNING RESOURCES */}
+
                     <div className="discovery-resources-section">
+
                       <div className="discovery-resources-heading">
                         <h4>Available Learning Resources</h4>
-                        <span>{resources.length} Available</span>
+
+                        <span>
+                          {resources.length} Available
+                        </span>
                       </div>
 
                       {resources.length > 0 ? (
+
                         <div className="discovery-resources-list">
                           {resources.map((resource, resourceIndex) =>
                             renderResource(resource, resourceIndex)
                           )}
                         </div>
+
                       ) : (
+
                         <div className="discovery-no-resources">
                           <BookOpen size={19} />
+
                           <p>
-                            No learning resources are currently available
-                            for this course.
+                            No learning resources are currently
+                            available for this course.
                           </p>
                         </div>
+
                       )}
+
                     </div>
 
                   </motion.article>
@@ -599,7 +1044,8 @@ function CourseDiscovery() {
               <h3>No Courses Found</h3>
 
               <p>
-                Try changing your search or filters to see more courses.
+                Try changing your search or filters to
+                see more courses.
               </p>
 
               <button

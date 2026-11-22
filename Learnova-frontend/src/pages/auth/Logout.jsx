@@ -34,7 +34,7 @@ function Logout() {
           message: 'You have successfully logged out.'
         }
       })
-    } catch (err) {
+    } catch {
       // Clear local session even if backend logout fails.
       clearAuthSession()
 

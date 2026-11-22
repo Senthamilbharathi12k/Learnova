@@ -1,0 +1,605 @@
+
+.learning-planner-page {
+  padding: 28px;
+  min-height: 100vh;
+  background: #ecfdf5;
+  color: #183b32;
+}
+
+.planner-header,
+.planner-calendar-heading,
+.planner-tasks-heading,
+.planner-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.planner-header {
+  margin-bottom: 28px;
+}
+
+.planner-eyebrow {
+  display: block;
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.planner-header h1 {
+  color: #064e3b;
+  font-size: clamp(27px, 4vw, 35px);
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.planner-header p,
+.planner-calendar-heading p,
+.planner-tasks-heading p {
+  color: #71877f;
+  margin: 0;
+  font-size: 14px;
+}
+
+.planner-primary-button,
+.planner-add-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #c5a45d;
+  color: #173c31;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.planner-primary-button:hover,
+.planner-add-small:hover {
+  background: #064e3b;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.planner-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.planner-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 21px;
+  background: #fff;
+  border: 1px solid #dceee5;
+  border-radius: 15px;
+  box-shadow: 0 5px 18px rgba(6, 78, 59, 0.04);
+}
+
+.planner-stat-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #0f766e;
+  background: #e5f5ef;
+  border-radius: 12px;
+}
+
+.planner-stat-icon.completed {
+  color: #16804e;
+  background: #e7f7ed;
+}
+
+.planner-stat-icon.pending {
+  color: #a47a2b;
+  background: #fbf4e5;
+}
+
+.planner-stat-card span,
+.planner-stat-card small {
+  display: block;
+  color: #71877f;
+  font-size: 12px;
+}
+
+.planner-stat-card strong {
+  display: block;
+  color: #064e3b;
+  font-size: 25px;
+  margin: 3px 0;
+}
+
+.planner-calendar-card,
+.planner-tasks-section {
+  background: #fff;
+  border: 1px solid #dceee5;
+  border-radius: 16px;
+  padding: 23px;
+  margin-bottom: 24px;
+  box-shadow: 0 5px 18px rgba(6, 78, 59, 0.04);
+}
+
+.planner-calendar-heading {
+  margin-bottom: 22px;
+}
+
+.planner-calendar-heading h2,
+.planner-tasks-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #064e3b;
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.planner-calendar-heading h2 svg {
+  color: #0f766e;
+}
+
+.planner-week-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planner-week-controls button {
+  height: 36px;
+  min-width: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dceee5;
+  border-radius: 8px;
+  background: #fff;
+  color: #064e3b;
+  cursor: pointer;
+}
+
+.planner-week-controls button:hover {
+  background: #ecfdf5;
+}
+
+.planner-week-controls .planner-today-button {
+  display: block;
+  padding: 0 13px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.planner-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.planner-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-height: 105px;
+  padding: 13px 5px;
+  border: 1px solid #e2eee8;
+  border-radius: 12px;
+  background: #fbfefc;
+  color: #71877f;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.planner-day:hover {
+  border-color: #0f766e;
+  background: #f0faf5;
+}
+
+.planner-day strong {
+  color: #064e3b;
+  font-size: 22px;
+}
+
+.planner-day small {
+  font-size: 10px;
+}
+
+.planner-day.active {
+  border: 2px solid #0f766e;
+  background: #e8f7f0;
+  color: #064e3b;
+}
+
+.planner-day.today strong {
+  color: #0f766e;
+}
+
+.planner-tasks-heading {
+  margin-bottom: 20px;
+}
+
+.planner-add-small {
+  padding: 9px 13px;
+  font-size: 13px;
+}
+
+.planner-empty {
+  text-align: center;
+  padding: 42px 15px;
+  border: 1px dashed #cfe4d8;
+  border-radius: 13px;
+  background: #fbfefc;
+}
+
+.planner-empty-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  color: #0f766e;
+  background: #e5f5ef;
+  border-radius: 50%;
+}
+
+.planner-empty h3 {
+  color: #064e3b;
+  font-size: 17px;
+  margin-bottom: 7px;
+}
+
+.planner-empty p {
+  color: #71877f;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.planner-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.planner-task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 17px;
+  border: 1px solid #e0eee6;
+  border-radius: 13px;
+  background: #fff;
+  transition: 0.2s ease;
+}
+
+.planner-task-card:hover {
+  border-color: #9bcdb8;
+  box-shadow: 0 5px 16px rgba(6, 78, 59, 0.06);
+}
+
+.planner-task-card.task-completed {
+  background: #f8fcf9;
+}
+
+.planner-task-check {
+  flex-shrink: 0;
+  border: 0;
+  padding: 0;
+  margin-top: 3px;
+  background: transparent;
+  color: #0f766e;
+  cursor: pointer;
+}
+
+.planner-task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.planner-task-topline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+
+.planner-category,
+.planner-status {
+  display: inline-flex;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.planner-category {
+  background: #e8f5ef;
+  color: #0f766e;
+}
+
+.planner-status.done {
+  background: #e6f7ec;
+  color: #16804e;
+}
+
+.planner-status.waiting {
+  background: #fbf3e3;
+  color: #9b7027;
+}
+
+.planner-task-content h3 {
+  color: #064e3b;
+  font-size: 16px;
+  font-weight: 750;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.task-completed .planner-task-content h3 {
+  color: #71877f;
+  text-decoration: line-through;
+}
+
+.planner-task-course,
+.planner-task-time {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #71877f;
+  font-size: 12px;
+  margin: 0 0 7px;
+}
+
+.planner-task-time svg,
+.planner-task-course svg {
+  color: #0f766e;
+}
+
+.planner-task-time span {
+  margin-left: 5px;
+  padding-left: 10px;
+  border-left: 1px solid #dceee5;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.planner-task-notes {
+  margin: 8px 0 0;
+  color: #71877f;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.planner-task-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.planner-task-actions button,
+.planner-modal-header > button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e0eee6;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f766e;
+  cursor: pointer;
+}
+
+.planner-task-actions button:hover,
+.planner-modal-header > button:hover {
+  background: #e8f7f0;
+}
+
+.planner-task-actions button.delete {
+  color: #c04444;
+}
+
+.planner-task-actions button.delete:hover {
+  background: #fff0f0;
+}
+
+.planner-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 17px;
+  font-size: 13px;
+}
+
+.planner-message button {
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.planner-message.success {
+  color: #176b42;
+  background: #e8f7ed;
+}
+
+.planner-message.error {
+  color: #a52f2f;
+  background: #fff0f0;
+}
+
+.planner-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(8, 35, 27, 0.58);
+  overflow-y: auto;
+}
+
+.planner-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 25px;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
+}
+
+.planner-modal-header {
+  margin-bottom: 21px;
+}
+
+.planner-modal-header h2 {
+  margin: 0;
+  color: #064e3b;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.planner-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.planner-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #31584b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.planner-form input,
+.planner-form select,
+.planner-form textarea {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #d5e6dc;
+  border-radius: 9px;
+  outline: none;
+  background: #fbfefc;
+  color: #183b32;
+  font: inherit;
+  font-size: 13px;
+}
+
+.planner-form textarea {
+  resize: vertical;
+}
+
+.planner-form input:focus,
+.planner-form select:focus,
+.planner-form textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.planner-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.planner-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 5px;
+}
+
+.planner-cancel-button {
+  padding: 11px 17px;
+  border: 1px solid #d5e6dc;
+  border-radius: 9px;
+  background: #fff;
+  color: #31584b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.planner-cancel-button:hover {
+  background: #f0faf5;
+}
+
+@media (max-width: 768px) {
+  .learning-planner-page {
+    padding: 18px 13px;
+  }
+
+  .planner-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .planner-stats {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .planner-calendar-card,
+  .planner-tasks-section {
+    padding: 16px;
+  }
+
+  .planner-week-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .planner-day {
+    min-height: 90px;
+  }
+
+  .planner-task-card {
+    gap: 10px;
+    padding: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .planner-calendar-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .planner-week-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .planner-tasks-heading {
+    align-items: flex-start;
+  }
+
+  .planner-task-actions {
+    flex-direction: column;
+  }
+
+  .planner-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-modal {
+    padding: 18px;
+  }
+}

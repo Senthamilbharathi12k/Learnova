@@ -1,6 +1,9 @@
 
 from django.db import models
 from skills_interests.models import Skill, Interest
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Q
 
 
 class Course(models.Model):
@@ -179,3 +182,65 @@ class CourseResource(models.Model):
 
     def __str__(self):
         return f"{self.course.name} - {self.title} ({self.pricing_type})"
+
+
+class CourseEnrollment(models.Model):
+
+    STATUS_CHOICES = [
+        ("ENROLLED", "Enrolled"),
+        ("IN_PROGRESS", "In Progress"),
+        ("COMPLETED", "Completed"),
+    ]
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="course_enrollments"
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="ENROLLED"
+    )
+
+    progress = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100)
+        ]
+    )
+
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ["-enrolled_at"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "course"],
+                name="unique_student_course_enrollment"
+            ),
+            models.CheckConstraint(
+                condition=Q(progress__gte=0) & Q(progress__lte=100),
+                name="valid_enrollment_progress"
+            ),
+        ]
+
+        verbose_name = "Course Enrollment"
+        verbose_name_plural = "Course Enrollments"
+
+    def __str__(self):
+        return f"{self.student.username} - {self.course.name}"

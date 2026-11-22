@@ -44,7 +44,7 @@ function Login() {
 
       navigate('/student/dashboard', { replace: true })
     } catch (err) {
-      const responseData = err.response?.data
+     const responseData = err.response?.data
 
       const errorMessage =
         responseData?.message ||

@@ -21,5 +21,4 @@ urlpatterns = [
     path("reset-password/", ResetPasswordView.as_view(), name="reset-password"),
     path("logout/", StudentLogoutView.as_view(), name="student-logout"),
     path("profile/", StudentProfileView.as_view(), name="student-profile"),
-
 ]

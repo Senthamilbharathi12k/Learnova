@@ -437,6 +437,28 @@
   color: #6c5a35;
 }
 
+.resume-resource-button[aria-disabled="true"],
+.portfolio-resource-button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.resume-search-box:focus-within,
+.resume-category-filter:focus-within,
+.portfolio-search-box:focus-within,
+.portfolio-category-filter:focus-within {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.resume-clear-button:focus-visible,
+.portfolio-clear-button:focus-visible,
+.resume-resource-button:focus-visible,
+.portfolio-resource-button:focus-visible {
+  outline: 3px solid #c5a45d;
+  outline-offset: 3px;
+}
 
 @media (max-width: 950px) {
   .resume-resource-grid {

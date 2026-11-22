@@ -25,5 +25,11 @@ urlpatterns = [
     path("api/courses/", include("courses.urls")),
     path("api/", include("resume_resources.urls")),
     path("api/", include("portfolio_resources.urls")),
+    path("api/assessments/", include("assessments.urls")),
+    path("api/saved-courses/", include("saved_courses.urls")),
+    path("api/learning-planner/", include("learning_planner.urls") ),
+    path("api/learning-progress/", include("learning_progress.urls")),
+    path("api/virtual-experience/", include("virtual_experience.urls") ),
     path("api/dashboard/", DashboardSummaryView.as_view(), name="student-dashboard"),
+
 ]

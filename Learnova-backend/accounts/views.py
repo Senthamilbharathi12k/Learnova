@@ -551,16 +551,23 @@ class StudentProfileView(APIView):
         )
 
 
+
 class DashboardSummaryView(APIView):
     """
-    Returns dashboard summary for the authenticated student.
+    Returns real database summary for the authenticated student.
     """
 
     def get(self, request):
+        from django.db.models import Sum
+
         from skills_interests.models import (
             StudentSkill,
             StudentInterest,
         )
+        from assessments.models import AssessmentAttempt
+        from saved_courses.models import SavedCourse
+        from learning_planner.models import LearningPlannerTask
+        from learning_progress.models import CourseProgress
         from courses.views import get_matching_courses
 
         profile = getattr(
@@ -575,7 +582,10 @@ class DashboardSummaryView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Calculate profile completion.
+        # ----------------------------------
+        # 1. PROFILE COMPLETION
+        # ----------------------------------
+
         profile_fields = [
             profile.full_name,
             profile.phone_number,
@@ -598,32 +608,192 @@ class DashboardSummaryView(APIView):
             completed_fields / len(profile_fields) * 100
         )
 
-        # Count active student skills.
-        skills_count = StudentSkill.objects.filter(
+        # ----------------------------------
+        # 2. STUDENT SKILLS
+        # ----------------------------------
+
+        student_skills = StudentSkill.objects.filter(
             student=profile,
             skill__is_active=True
-        ).count()
+        ).select_related("skill")
 
-        # Count active student interests.
-        interests_count = StudentInterest.objects.filter(
+        skills_data = [
+            {
+                "id": item.skill.id,
+                "name": item.skill.name,
+                "proficiency": item.proficiency,
+            }
+            for item in student_skills
+        ]
+
+        # ----------------------------------
+        # 3. STUDENT INTERESTS
+        # ----------------------------------
+
+        student_interests = StudentInterest.objects.filter(
             student=profile,
             interest__is_active=True
+        ).select_related("interest")
+
+        interests_data = [
+            {
+                "id": item.interest.id,
+                "name": item.interest.name,
+            }
+            for item in student_interests
+        ]
+
+        # ----------------------------------
+        # 4. RULE-BASED RECOMMENDATIONS
+        # ----------------------------------
+
+        recommended_courses = get_matching_courses(profile)
+
+        # ----------------------------------
+        # 5. ASSESSMENTS
+        # ----------------------------------
+
+        assessment_attempts = AssessmentAttempt.objects.filter(
+            student=profile
+        ).select_related(
+            "category",
+            "category__skill"
+        ).order_by("-completed_at")
+
+        total_assessments = assessment_attempts.count()
+
+        # Keep only the latest attempt for each category.
+        latest_assessments = []
+        seen_categories = set()
+
+        for attempt in assessment_attempts:
+            if attempt.category_id in seen_categories:
+                continue
+
+            seen_categories.add(attempt.category_id)
+
+            latest_assessments.append({
+                "id": attempt.id,
+                "category": attempt.category.name,
+                "skill": (
+                    attempt.category.skill.name
+                    if attempt.category.skill
+                    else None
+                ),
+                "score": attempt.score,
+                "level": attempt.level,
+                "correct_answers": attempt.correct_answers,
+                "total_questions": attempt.total_questions,
+                "completed_at": attempt.completed_at,
+            })
+
+        # ----------------------------------
+        # 6. SAVED COURSES
+        # ----------------------------------
+
+        saved_courses_count = SavedCourse.objects.filter(
+            student=profile,
+            course__is_active=True
         ).count()
 
-        # Use the existing rule-based recommendation logic.
-        recommended_courses = get_matching_courses(profile)
+        # ----------------------------------
+        # 7. LEARNING PLANNER
+        # ----------------------------------
+
+        planner_tasks = LearningPlannerTask.objects.filter(
+            student=profile
+        )
+
+        total_tasks = planner_tasks.count()
+
+        pending_tasks = planner_tasks.filter(
+            status="PENDING"
+        ).count()
+
+        completed_tasks = planner_tasks.filter(
+            status="COMPLETED"
+        ).count()
+
+        # ----------------------------------
+        # 8. LEARNING PROGRESS
+        # ----------------------------------
+
+        progress_records = CourseProgress.objects.filter(
+            student=profile,
+            course__is_active=True
+        ).select_related("course")
+
+        started_courses = 0
+        completed_courses = 0
+        in_progress_courses = 0
+
+        for progress in progress_records:
+            has_started = (
+                progress.completed_lessons > 0
+                or progress.learning_hours > 0
+            )
+
+            is_completed = (
+                progress.total_lessons > 0
+                and progress.completed_lessons >= progress.total_lessons
+            )
+
+            if has_started:
+                started_courses += 1
+
+            if is_completed:
+                completed_courses += 1
+            elif has_started:
+                in_progress_courses += 1
+
+        learning_hours_total = (
+            progress_records.aggregate(
+                total=Sum("learning_hours")
+            )["total"] or 0
+        )
+
+        # ----------------------------------
+        # 9. FINAL DASHBOARD RESPONSE
+        # ----------------------------------
 
         return Response(
             {
                 "message": "Dashboard data retrieved successfully.",
+
                 "dashboard": {
                     "student_name": profile.full_name,
+
                     "profile_completion": profile_completion,
-                    "skills_count": skills_count,
-                    "interests_count": interests_count,
+
+                    "skills_count": len(skills_data),
+                    "skills": skills_data,
+
+                    "interests_count": len(interests_data),
+                    "interests": interests_data,
+
                     "recommended_courses_count": len(
                         recommended_courses
                     ),
+
+                    "total_assessments": total_assessments,
+                    "latest_assessments": latest_assessments,
+
+                    "saved_courses_count": saved_courses_count,
+
+                    "planner": {
+                        "total_tasks": total_tasks,
+                        "pending_tasks": pending_tasks,
+                        "completed_tasks": completed_tasks,
+                    },
+
+                    "learning_progress": {
+                        "started_courses": started_courses,
+                        "completed_courses": completed_courses,
+                        "in_progress_courses": in_progress_courses,
+                        "learning_hours": float(
+                            learning_hours_total
+                        ),
+                    },
                 }
             },
             status=status.HTTP_200_OK

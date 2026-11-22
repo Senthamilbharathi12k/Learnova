@@ -1,66 +1,115 @@
 
 import api from './api'
 
-// Master lists
+// Supports normal arrays and paginated API responses
+const getCollection = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.results)) return data.results
+  if (Array.isArray(data?.data)) return data.data
+  return []
+}
+
+// =========================================
+// MASTER SKILLS
+// =========================================
+
 export const getSkills = async () => {
   const response = await api.get('/skills/')
-  return response.data
+  return getCollection(response.data)
 }
+
+// =========================================
+// MASTER INTERESTS
+// =========================================
 
 export const getInterests = async () => {
   const response = await api.get('/interests/')
-  return response.data
+  return getCollection(response.data)
 }
 
-// Logged-in student's selections
+// =========================================
+// STUDENT SKILLS
+// =========================================
+
 export const getStudentSkills = async () => {
   const response = await api.get('/student/skills/')
-  return response.data
+  return getCollection(response.data)
 }
+
+// =========================================
+// STUDENT INTERESTS
+// =========================================
 
 export const getStudentInterests = async () => {
   const response = await api.get('/student/interests/')
-  return response.data
+  return getCollection(response.data)
 }
 
-// Add skill
+// =========================================
+// ADD STUDENT SKILL
+// =========================================
+
 export const addStudentSkill = async (skillId, proficiency) => {
   const response = await api.post('/student/skills/', {
     skill: skillId,
     proficiency,
   })
+
   return response.data
 }
 
-// Update proficiency
-export const updateStudentSkill = async (studentSkillId, proficiency) => {
+// =========================================
+// UPDATE STUDENT SKILL PROFICIENCY
+// =========================================
+
+export const updateStudentSkill = async (
+  studentSkillId,
+  proficiency
+) => {
   const response = await api.patch(
     `/student/skills/${studentSkillId}/`,
-    { proficiency }
+    {
+      proficiency,
+    }
   )
+
   return response.data
 }
 
-// Delete skill
+// =========================================
+// DELETE STUDENT SKILL
+// =========================================
+
 export const deleteStudentSkill = async (studentSkillId) => {
   const response = await api.delete(
     `/student/skills/${studentSkillId}/`
   )
+
   return response.data
 }
 
-// Add interest
+// =========================================
+// ADD STUDENT INTEREST
+// =========================================
+
 export const addStudentInterest = async (interestId) => {
   const response = await api.post('/student/interests/', {
     interest: interestId,
   })
+
   return response.data
 }
 
-// Delete interest
-export const deleteStudentInterest = async (studentInterestId) => {
+// =========================================
+// DELETE STUDENT INTEREST
+// =========================================
+
+export const deleteStudentInterest = async (
+  studentInterestId
+) => {
   const response = await api.delete(
     `/student/interests/${studentInterestId}/`
   )
+
   return response.data
 }

@@ -28,6 +28,20 @@ const categoryLabels = {
   RESUME_GUIDANCE: 'Resume Guidance',
 }
 
+const getSafeText = (value, fallback = '') =>
+  typeof value === 'string' ? value : fallback
+
+const isValidExternalUrl = (url) => {
+  if (typeof url !== 'string' || !url.trim()) return false
+
+  try {
+    const parsedUrl = new URL(url)
+    return parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
 function ResumeResources() {
   const [resources, setResources] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -41,42 +55,113 @@ function ResumeResources() {
 
     try {
       const data = await getResumeResources()
-      setResources(Array.isArray(data.resources) ? data.resources : [])
+      const resourceList = Array.isArray(data?.resources)
+        ? data.resources
+        : []
+
+      setResources(resourceList)
     } catch (err) {
+      console.error('Resume resources fetch error:', err)
+
       if (err.response?.status === 401) {
         setError(
           'Please log in with your student account to access resume resources.'
         )
+      } else if (err.response?.status === 403) {
+        setError('You do not have permission to access these resources.')
+      } else if (!err.response) {
+        setError(
+          'Unable to connect to the server. Please check your internet connection and try again.'
+        )
       } else {
         setError(
           err.response?.data?.message ||
+          err.response?.data?.detail ||
           'Unable to load resume resources. Please try again.'
         )
       }
+
+      setResources([])
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    loadResources()
-  }, [loadResources])
+useEffect(() => {
+  let isMounted = true
+
+  const fetchInitialResources = async () => {
+    try {
+      const data = await getResumeResources()
+
+      if (!isMounted) return
+
+      const resourceList = Array.isArray(data?.resources)
+        ? data.resources
+        : []
+
+      setResources(resourceList)
+      setError('')
+    } catch (err) {
+      if (!isMounted) return
+
+      console.error('Resume resources fetch error:', err)
+
+      if (err.response?.status === 401) {
+        setError(
+          'Please log in with your student account to access resume resources.'
+        )
+      } else if (err.response?.status === 403) {
+        setError(
+          'You do not have permission to access these resources.'
+        )
+      } else if (!err.response) {
+        setError(
+          'Unable to connect to the server. Please check your internet connection and try again.'
+        )
+      } else {
+        setError(
+          err.response?.data?.message ||
+          err.response?.data?.detail ||
+          'Unable to load resume resources. Please try again.'
+        )
+      }
+
+      setResources([])
+    } finally {
+      if (isMounted) {
+        setLoading(false)
+      }
+    }
+  }
+
+  fetchInitialResources()
+
+  return () => {
+    isMounted = false
+  }
+}, [])
 
   const filteredResources = useMemo(() => {
     const search = searchTerm.trim().toLowerCase()
 
     return resources.filter((resource) => {
-      const categoryLabel =
-        categoryLabels[resource.category] || resource.category
+      const title = getSafeText(resource?.title)
+      const description = getSafeText(resource?.description)
+      const category = getSafeText(resource?.category, 'OTHER')
+      const categoryLabel = categoryLabels[category] || category
 
-      const matchesSearch =
-        resource.title.toLowerCase().includes(search) ||
-        resource.description.toLowerCase().includes(search) ||
-        categoryLabel.toLowerCase().includes(search)
+      const features = Array.isArray(resource?.features)
+        ? resource.features.filter((item) => typeof item === 'string').join(' ')
+        : ''
+
+      const searchableText =
+        `${title} ${description} ${categoryLabel} ${features}`.toLowerCase()
+
+      const matchesSearch = searchableText.includes(search)
 
       const matchesCategory =
-        selectedCategory === 'All' ||
-        resource.category === selectedCategory
+        selectedCategory === 'All' || category === selectedCategory
 
       return matchesSearch && matchesCategory
     })
@@ -85,6 +170,12 @@ function ResumeResources() {
   const clearFilters = () => {
     setSearchTerm('')
     setSelectedCategory('All')
+  }
+
+  const getResourceIcon = (category) => {
+    if (category === 'ATS_CHECKER') return ClipboardCheck
+    if (category === 'RESUME_GUIDANCE') return BookOpen
+    return FileText
   }
 
   return (
@@ -117,9 +208,7 @@ function ResumeResources() {
           <div>
             <span className="resume-section-label">EXTERNAL RESOURCES</span>
             <h2>Resume Tools & Guidance</h2>
-            <p>
-              Choose a resource to create, check or improve your resume.
-            </p>
+            <p>Choose a resource to create, check or improve your resume.</p>
           </div>
 
           <div className="resume-resource-count">
@@ -144,6 +233,7 @@ function ResumeResources() {
               placeholder="Search resume resources..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
+              aria-label="Search resume resources"
             />
 
             {searchTerm && (
@@ -162,6 +252,7 @@ function ResumeResources() {
             <select
               value={selectedCategory}
               onChange={(event) => setSelectedCategory(event.target.value)}
+              aria-label="Filter resume resources by category"
             >
               {categories.map((category) => (
                 <option key={category.value} value={category.value}>
@@ -200,27 +291,37 @@ function ResumeResources() {
             </div>
           ) : filteredResources.length > 0 ? (
             filteredResources.map((resource, index) => {
-              const categoryLabel =
-                categoryLabels[resource.category] || resource.category
-
-              const ResourceIcon =
-                resource.category === 'ATS_CHECKER'
-                  ? ClipboardCheck
-                  : resource.category === 'RESUME_GUIDANCE'
-                    ? BookOpen
-                    : FileText
-
+              const category = getSafeText(resource?.category, 'OTHER')
+              const categoryLabel = categoryLabels[category] || category
+              const ResourceIcon = getResourceIcon(category)
+              const title = getSafeText(resource?.title, 'Untitled Resource')
+              const description = getSafeText(
+                resource?.description,
+                'No description available.'
+              )
+              const validUrl = isValidExternalUrl(resource?.url)
               const accessLabel =
-                resource.pricing_type === 'FREE' ? 'Free' : 'Paid'
+                resource?.pricing_type === 'FREE'
+                  ? 'Free'
+                  : resource?.pricing_type === 'PAID'
+                    ? 'Paid'
+                    : 'Access details unavailable'
+
+              const features = Array.isArray(resource?.features)
+                ? resource.features.filter((item) => typeof item === 'string')
+                : []
 
               return (
                 <motion.article
                   className="resume-resource-card"
-                  key={resource.id}
+                  key={resource?.id ?? `${title}-${index}`}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: Math.min(index * 0.05, 0.3),
+                  }}
                 >
                   <div className="resume-card-top">
                     <span className="resume-card-category">
@@ -235,20 +336,41 @@ function ResumeResources() {
                     <ResourceIcon size={25} />
                   </div>
 
-                  <h3>{resource.title}</h3>
+                  <h3>{title}</h3>
 
-                  <p className="resume-card-description">
-                    {resource.description}
-                  </p>
+                  <p className="resume-card-description">{description}</p>
 
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="resume-resource-button"
-                  >
-                    Visit Website <ExternalLink size={16} />
-                  </a>
+                  {features.length > 0 && (
+                    <div className="resume-card-features">
+                      <strong>Features</strong>
+                      {features.map((feature, featureIndex) => (
+                        <span key={`${feature}-${featureIndex}`}>
+                          <CheckCircle2 size={15} />
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {validUrl ? (
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="resume-resource-button"
+                      aria-label={`Visit ${title} website`}
+                    >
+                      Visit Website <ExternalLink size={16} />
+                    </a>
+                  ) : (
+                    <span
+                      className="resume-resource-button"
+                      aria-disabled="true"
+                      title="External website link is unavailable"
+                    >
+                      Link Unavailable
+                    </span>
+                  )}
                 </motion.article>
               )
             })

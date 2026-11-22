@@ -1,0 +1,831 @@
+
+.virtual-experience-page {
+  width: min(1180px, 92%);
+  margin: 0 auto;
+  padding: 38px 0 65px;
+  color: #173b32;
+}
+
+.ve-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 36px;
+  margin-bottom: 30px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(120deg, #064e3b, #0f766e);
+  box-shadow: 0 12px 28px rgba(6, 78, 59, 0.12);
+}
+
+.ve-eyebrow,
+.ve-section-kicker {
+  display: block;
+  margin-bottom: 9px;
+  color: #c5a45d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.ve-hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(27px, 4vw, 38px);
+  font-weight: 800;
+}
+
+.ve-hero p {
+  max-width: 650px;
+  margin: 0;
+  color: #e0f2eb;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.ve-hero-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 17px;
+  color: #f1d99d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ve-hero-icon {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 23px;
+  color: #f1d99d;
+  background: rgba(255,255,255,.1);
+}
+
+.ve-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 30px 0 18px;
+}
+
+.ve-section-heading h2,
+.ve-detail-heading h2 {
+  margin: 0 0 7px;
+  color: #064e3b;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.ve-section-heading p,
+.ve-detail-heading p {
+  margin: 0;
+  color: #71847d;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ve-refresh-btn,
+.ve-outline-btn,
+.ve-close-btn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border: 1px solid #0f766e;
+  border-radius: 9px;
+  background: #fff;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.ve-refresh-btn:hover,
+.ve-outline-btn:hover,
+.ve-close-btn:hover {
+  background: #0f766e;
+  color: #fff;
+}
+
+.ve-program-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ve-program-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #dcece5;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(6,78,59,.045);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.ve-program-card:hover {
+  transform: translateY(-4px);
+  border-color: #c5a45d;
+  box-shadow: 0 12px 25px rgba(6,78,59,.09);
+}
+
+.ve-program-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 17px;
+}
+
+.ve-program-icon,
+.ve-enrollment-icon {
+  width: 47px;
+  height: 47px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #0f766e;
+  background: #ecfdf5;
+}
+
+.ve-level {
+  padding: 6px 10px;
+  border-radius: 20px;
+  color: #806323;
+  background: #fbf5e7;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ve-program-card h3 {
+  margin: 0 0 5px;
+  color: #064e3b;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.ve-program-role {
+  margin: 0 0 12px;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ve-program-description {
+  min-height: 62px;
+  margin: 0;
+  color: #71847d;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.ve-program-meta,
+.ve-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 17px 0;
+  color: #60776d;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ve-program-meta span,
+.ve-detail-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ve-program-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #edf3ef;
+}
+
+.ve-primary-btn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 1px solid #c5a45d;
+  border-radius: 9px;
+  color: #064e3b;
+  background: #c5a45d;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.ve-primary-btn:hover:not(:disabled) {
+  border-color: #064e3b;
+  color: #fff;
+  background: #064e3b;
+}
+
+.ve-primary-btn:disabled,
+.ve-refresh-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.ve-enrolled-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ve-enrollment-heading {
+  margin-top: 42px;
+}
+
+.ve-enrollment-list {
+  display: grid;
+  gap: 13px;
+}
+
+.ve-enrollment-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  align-items: center;
+  gap: 22px;
+  padding: 19px 21px;
+  border: 1px solid #dcece5;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.ve-enrollment-info {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.ve-enrollment-info h3 {
+  margin: 0 0 5px;
+  color: #064e3b;
+  font-size: 14px;
+}
+
+.ve-enrollment-info p {
+  margin: 0;
+  color: #71847d;
+  font-size: 11px;
+}
+
+.ve-progress-area {
+  min-width: 120px;
+}
+
+.ve-progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #71847d;
+  font-size: 11px;
+}
+
+.ve-progress-label strong {
+  color: #064e3b;
+}
+
+.ve-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e7f1eb;
+}
+
+.ve-progress-track div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f766e, #c5a45d);
+  transition: width .3s ease;
+}
+
+.ve-enrollment-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ve-status {
+  padding: 6px 9px;
+  border-radius: 20px;
+  color: #806323;
+  background: #fbf5e7;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.ve-status-complete {
+  color: #08745f;
+  background: #e4f7ed;
+}
+
+.ve-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 38px 20px;
+  border: 1px dashed #bfd9cc;
+  border-radius: 16px;
+  color: #0f766e;
+  background: #fff;
+  text-align: center;
+}
+
+.ve-empty h3 {
+  margin: 12px 0 5px;
+  color: #064e3b;
+  font-size: 16px;
+}
+
+.ve-empty p {
+  margin: 0;
+  color: #71847d;
+  font-size: 12px;
+}
+
+.ve-empty-small {
+  padding: 27px 20px;
+}
+
+.ve-detail-panel {
+  margin-top: 28px;
+  padding: 25px;
+  border: 1px solid #dcece5;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(6,78,59,.05);
+}
+
+.ve-detail-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.ve-detail-heading h2 {
+  font-size: 21px;
+}
+
+.ve-task-heading,
+.ve-submission-form h3,
+.ve-submission-history h3 {
+  margin: 23px 0 14px;
+  color: #064e3b;
+  font-size: 16px;
+}
+
+.ve-task-list {
+  display: grid;
+  gap: 11px;
+}
+
+.ve-task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 15px;
+  border: 1px solid #e4eee8;
+  border-radius: 12px;
+  background: #fbfefc;
+}
+
+.ve-task-number {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #064e3b;
+  background: #f5edda;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ve-task-card h4 {
+  margin: 0 0 5px;
+  color: #064e3b;
+  font-size: 13px;
+}
+
+.ve-task-card p {
+  margin: 0 0 5px;
+  color: #71847d;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ve-task-instructions {
+  white-space: pre-line;
+}
+
+.ve-task-day {
+  color: #0f766e;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ve-info-note {
+  margin: 17px 0 0;
+  padding: 12px;
+  border-radius: 9px;
+  color: #0f766e;
+  background: #ecfdf5;
+  font-size: 12px;
+}
+
+.ve-workspace-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0 14px;
+}
+
+.ve-workspace-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 16px 10px;
+  border: 1px solid #e1eee7;
+  border-radius: 12px;
+  color: #0f766e;
+  background: #fbfefc;
+}
+
+.ve-workspace-stats strong {
+  color: #064e3b;
+  font-size: 22px;
+}
+
+.ve-workspace-stats span {
+  color: #71847d;
+  font-size: 10px;
+}
+
+.ve-workspace-progress {
+  margin-bottom: 22px;
+}
+
+.ve-completed-banner {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px;
+  border: 1px solid #bce5d0;
+  border-radius: 12px;
+  color: #08745f;
+  background: #eaf9f0;
+}
+
+.ve-completed-banner strong {
+  font-size: 14px;
+}
+
+.ve-completed-banner p {
+  margin: 4px 0 0;
+  color: #55776a;
+  font-size: 12px;
+}
+
+.ve-submission-form {
+  display: grid;
+  gap: 10px;
+  max-width: 760px;
+  padding: 20px;
+  border: 1px solid #e1eee7;
+  border-radius: 13px;
+  background: #fbfefc;
+}
+
+.ve-submission-form h3 {
+  margin: 0 0 5px;
+}
+
+.ve-submission-form label {
+  margin-top: 5px;
+  color: #315b4c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ve-submission-form input,
+.ve-submission-form select,
+.ve-submission-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #d5e5dc;
+  border-radius: 8px;
+  outline: none;
+  color: #173b32;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+}
+
+.ve-submission-form textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.ve-submission-form input:focus,
+.ve-submission-form select:focus,
+.ve-submission-form textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15,118,110,.1);
+}
+
+.ve-submit-btn {
+  justify-self: start;
+  margin-top: 8px;
+}
+
+.ve-submission-history {
+  margin-top: 25px;
+}
+
+.ve-no-submissions {
+  color: #71847d;
+  font-size: 12px;
+}
+
+.ve-submission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf3ef;
+}
+
+.ve-submission-check {
+  color: #0f766e;
+}
+
+.ve-submission-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ve-submission-content strong {
+  color: #064e3b;
+  font-size: 12px;
+}
+
+.ve-submission-content p {
+  margin: 5px 0;
+  color: #71847d;
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ve-submission-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ve-submission-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ve-submission-links a:hover {
+  color: #064e3b;
+  text-decoration: underline;
+}
+
+.ve-submitted-label {
+  color: #0f766e;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ve-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 15px 0;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.ve-alert button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ve-alert-error {
+  border: 1px solid #f0c6c3;
+  color: #a33a32;
+  background: #fff4f2;
+}
+
+.ve-alert-success {
+  border: 1px solid #bce5d0;
+  color: #08745f;
+  background: #eaf9f0;
+}
+
+.ve-detail-loading,
+.ve-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  padding: 30px;
+  color: #0f766e;
+  font-size: 13px;
+}
+
+.ve-loading {
+  min-height: 300px;
+  flex-direction: column;
+}
+
+.ve-loading p {
+  margin: 0;
+}
+
+.ve-spin {
+  animation: ve-spin-animation 1s linear infinite;
+}
+
+@keyframes ve-spin-animation {
+  to { transform: rotate(360deg); }
+}
+
+.ve-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 28px 0 0;
+  color: #71847d;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.ve-disclaimer svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #0f766e;
+}
+
+@media (max-width: 1000px) {
+  .ve-program-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ve-enrollment-card {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ve-enrollment-action {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 650px) {
+  .virtual-experience-page {
+    width: 92%;
+    padding-top: 25px;
+  }
+
+  .ve-hero {
+    padding: 25px 21px;
+  }
+
+  .ve-hero-icon {
+    display: none;
+  }
+
+  .ve-program-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ve-section-heading {
+    align-items: flex-start;
+  }
+
+  .ve-enrollment-card {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .ve-enrollment-action {
+    grid-column: auto;
+  }
+
+  .ve-detail-panel {
+    padding: 18px;
+  }
+
+  .ve-detail-heading {
+    flex-direction: column;
+  }
+
+  .ve-workspace-stats {
+    gap: 7px;
+  }
+
+  .ve-workspace-stats > div {
+    padding: 12px 5px;
+  }
+
+  .ve-workspace-stats strong {
+    font-size: 18px;
+  }
+
+  .ve-workspace-stats span {
+    text-align: center;
+    font-size: 9px;
+  }
+
+  .ve-submission-item {
+    flex-wrap: wrap;
+  }
+
+  .ve-submitted-label {
+    margin-left: 30px;
+  }
+}
+/* DELETE ENROLLMENT BUTTON */
+
+.ve-delete-btn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border: 1px solid #dc6b65;
+  border-radius: 9px;
+  color: #b43e37;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.ve-delete-btn:hover:not(:disabled) {
+  color: #fff;
+  border-color: #b43e37;
+  background: #b43e37;
+}
+
+.ve-delete-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.ve-enrollment-action {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 650px) {
+  .ve-enrollment-action {
+    justify-content: flex-start;
+  }
+
+  .ve-delete-btn,
+  .ve-enrollment-action .ve-primary-btn {
+    flex: 1;
+  }
+}

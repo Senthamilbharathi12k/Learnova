@@ -44,18 +44,64 @@ function PortfolioResources() {
 
   // Fetch portfolio resources from backend API
   const fetchResources = useCallback(async () => {
-    setIsLoading(true)
-    setError('')
+  try {
+    const data = await getPortfolioResources()
 
+    const resourceList = Array.isArray(data?.resources)
+      ? data.resources
+      : []
+
+    setResources(resourceList)
+    setError('')
+  } catch (err) {
+    console.error('Portfolio resources fetch error:', err)
+
+    const status = err.response?.status
+
+    if (status === 401) {
+      setError(
+        'Your session may have expired. Please log in again to view portfolio resources.'
+      )
+    } else if (status === 403) {
+      setError(
+        'You do not have permission to access these resources.'
+      )
+    } else if (!err.response) {
+      setError(
+        'Unable to connect to the server. Please check your internet connection and try again.'
+      )
+    } else {
+      setError(
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        'Unable to load portfolio resources. Please try again.'
+      )
+    }
+
+    setResources([])
+  } finally {
+    setIsLoading(false)
+  }
+}, [])
+
+useEffect(() => {
+  let isMounted = true
+
+  const fetchInitialResources = async () => {
     try {
       const data = await getPortfolioResources()
+
+      if (!isMounted) return
 
       const resourceList = Array.isArray(data?.resources)
         ? data.resources
         : []
 
       setResources(resourceList)
+      setError('')
     } catch (err) {
+      if (!isMounted) return
+
       console.error('Portfolio resources fetch error:', err)
 
       const status = err.response?.status
@@ -82,13 +128,18 @@ function PortfolioResources() {
 
       setResources([])
     } finally {
-      setIsLoading(false)
+      if (isMounted) {
+        setIsLoading(false)
+      }
     }
-  }, [])
+  }
 
-  useEffect(() => {
-    fetchResources()
-  }, [fetchResources])
+  fetchInitialResources()
+
+  return () => {
+    isMounted = false
+  }
+}, [])
 
   // Search and category filtering
   const filteredResources = useMemo(() => {
